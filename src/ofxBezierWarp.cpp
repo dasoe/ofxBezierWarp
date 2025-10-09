@@ -694,12 +694,14 @@ void ofxBezierWarp::rearrangeAllPoints() {
     int teilLeftY = (luY - llY) / (numYPoints-1);
     int teilRightY = (ruY - rlY) / (numYPoints-1);
 
-    // rearranging the vertical lines left and right
+    // rearranging the vertical outer lines, left and right
     for (int i = 0; i < numYPoints - 1; i++) {
+        // left side 
         cntrlPoints[(i * numXPoints + 0)*3 + 0] = luX - (i * teilLeftX);
         cntrlPoints[(i * numXPoints + 0)*3 + 1] = luY - (i * teilLeftY);
 //        ofLog() << (i * numXPoints + 0)*3 + 0 << ": " << luX - (i * teilLeftX);
 //        ofLog() << (i * numXPoints + 0)*3 + 1 << ": " << luY - (i * teilLeftY) << " | " << llY;
+        // right side 
         cntrlPoints[(i * numXPoints + numXPoints - 1)*3 + 0] = ruX - (i * teilRightX);
         cntrlPoints[(i * numXPoints + numXPoints - 1)*3 + 1] = ruY - (i * teilRightY);
     }
