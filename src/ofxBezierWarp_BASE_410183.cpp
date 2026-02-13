@@ -32,10 +32,6 @@
  *
  */
 
-#include <opencv4/opencv2/calib3d.hpp>
-#include <opencv4/opencv2/core.hpp>
-#include <opencv4/opencv2/imgproc.hpp>
-
 #include "ofxBezierWarp.h"
 
 GLfloat texpts [2][2][2] = {
@@ -64,6 +60,8 @@ ofxBezierWarp::ofxBezierWarp() {
     bShowWarpGrid = false;
     bWarpPositionDiff = false;
     bDoWarp = true;
+
+
 }
 
 //--------------------------------------------------------------
@@ -654,6 +652,18 @@ void ofxBezierWarp::mouseReleased(ofMouseEventArgs & e) {
 
 void ofxBezierWarp::rearrangeAllPoints() {
     ofLogNotice("rearrange all points!");
+    // outer lines vertical
+    //    ofVec2f topPoint = ofVec2f(cntrlPoints[0], );
+    //    ofVec2f lowestPoint  = ofVec2f(cntrlPoints[0], );
+
+    //    
+    //    cntrlPoints[(currentCntrlY*numXPoints+currentCntrlX)*3+0] = x;
+    //    cntrlPoints[(currentCntrlY*numXPoints+currentCntrlX)*3+1] = y;
+
+    //                cntrlPoints[(i*numXPoints+j)*3+0] = x;
+    //                cntrlPoints[(i*numXPoints+j)*3+1] = y;
+    //            
+    // i = yPoints, j = xPoints           
 
     // left upper corner
     int luNumber = (0 * numXPoints + 0);
@@ -679,51 +689,41 @@ void ofxBezierWarp::rearrangeAllPoints() {
     int rlX = cntrlPoints[rlNumber * 3 + 0];
     int rlY = cntrlPoints[rlNumber * 3 + 1];
 
-    // getting the projection matrix
-    // calculate from: 4 corner points of original original, non-warped grid (screen)
-    // and 4 corner points of the warp grid
-    int x = 0;
-    int y = 0;
-    int w = getWidth();
-    int h = getHeight();
-    
-    cv::Point2f src_points[] = {
-            cv::Point2f( x, y ),
-            cv::Point2f( x + w, y ),
-            cv::Point2f( x + w, y + h ),
-            cv::Point2f( x, y + h )
-    };
+    int teilLeftX = (luX - llX) / (numYPoints-1);
+    int teilRightX = (ruX - rlX) / (numYPoints-1);
+    int teilLeftY = (luY - llY) / (numYPoints-1);
+    int teilRightY = (ruY - rlY) / (numYPoints-1);
 
-    cv::Point2f dst_points[] = {
-            cv::Point2f( luX, luY ),
-            cv::Point2f( ruX, ruY ),
-            cv::Point2f( rlX, rlY ),
-            cv::Point2f( llX, llY )
-    };
-
-    auto Matrix = cv::getPerspectiveTransform( src_points, dst_points );
-
-    // going through all points and apply the matrix
-        
-    int urX;
-    int urY;
-    for (int i = 0; i < numYPoints; i++) {
-        urY = h / (numYPoints-1) * i ;
-        for (int j = 0; j < numXPoints; j++) {
-            vector<cv::Point2f> sourcePoints;
-            vector<cv::Point2f> targetPoints;
-            // Source points are all points from original, non-warped grid
-            // so simple division of width and height
-            urX = w / (numXPoints-1) * j;
-            sourcePoints.push_back( cv::Point2f( urX, urY ) );
-            perspectiveTransform(sourcePoints, targetPoints, Matrix);   
-            cout << ofPoint ( cntrlPoints[(i * numXPoints + j)*3 + 0], cntrlPoints[(i * numXPoints + j)*3 + 1] ) << "\n" ;   
-            cntrlPoints[(i * numXPoints + j)*3 + 0] = targetPoints[0].x;
-            cntrlPoints[(i * numXPoints + j)*3 + 1] = targetPoints[0].y;
-            cout << ofPoint ( cntrlPoints[(i * numXPoints + j)*3 + 0], cntrlPoints[(i * numXPoints + j)*3 + 1] ) << "\n"  << "\n";   
-        }
+    // rearranging the vertical lines left and right
+    for (int i = 0; i < numYPoints - 1; i++) {
+        cntrlPoints[(i * numXPoints + 0)*3 + 0] = luX - (i * teilLeftX);
+        cntrlPoints[(i * numXPoints + 0)*3 + 1] = luY - (i * teilLeftY);
+//        ofLog() << (i * numXPoints + 0)*3 + 0 << ": " << luX - (i * teilLeftX);
+//        ofLog() << (i * numXPoints + 0)*3 + 1 << ": " << luY - (i * teilLeftY) << " | " << llY;
+        cntrlPoints[(i * numXPoints + numXPoints - 1)*3 + 0] = ruX - (i * teilRightX);
+        cntrlPoints[(i * numXPoints + numXPoints - 1)*3 + 1] = ruY - (i * teilRightY);
     }
-              
+    
+    // rearranging the horizontal lines
+    // (we are not efficient here, yes - but we do not actually need to be 
+    // at this point, so we prefer easier to understand code...)
+    for (int i = 0; i < numYPoints; i++) {
+        // in this row we do:
+        // left point
+        int lpX = cntrlPoints[(i * numXPoints + 0)*3 + 0];
+        int lpY = cntrlPoints[(i * numXPoints + 0)*3 + 1];
+        // right point
+        int rpX = cntrlPoints[((i * numXPoints) + numXPoints-1)*3 + 0];
+        int rpY = cntrlPoints[((i * numXPoints) + numXPoints-1)*3 + 1];
+        // calculate parts to add
+        int teilX = (lpX - rpX) / (numXPoints-1);
+        int teilY = (lpY - rpY) / (numXPoints-1);
+        // rearranging the app. horizontal line
+        for (int j = 0; j < numXPoints-1; j++) {
+            cntrlPoints[(i * numXPoints + j)*3 + 0] = lpX - (j * teilX);
+            cntrlPoints[(i * numXPoints + j)*3 + 1] = lpY - (j * teilY);
+       }        
+    }
 
 }
 
@@ -784,3 +784,4 @@ void ofxBezierWarp::moveCorner(ofOeCorner corner, ofOeDirection direction) {
     }
 
 }
+

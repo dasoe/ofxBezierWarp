@@ -679,6 +679,24 @@ void ofxBezierWarp::rearrangeAllPoints() {
     int rlX = cntrlPoints[rlNumber * 3 + 0];
     int rlY = cntrlPoints[rlNumber * 3 + 1];
 
+<<<<<<< HEAD
+    int teilLeftX = (luX - llX) / (numYPoints-1);
+    int teilRightX = (ruX - rlX) / (numYPoints-1);
+    int teilLeftY = (luY - llY) / (numYPoints-1);
+    int teilRightY = (ruY - rlY) / (numYPoints-1);
+
+    // rearranging the vertical outer lines, left and right
+    for (int i = 0; i < numYPoints - 1; i++) {
+        // left side 
+        cntrlPoints[(i * numXPoints + 0)*3 + 0] = luX - (i * teilLeftX);
+        cntrlPoints[(i * numXPoints + 0)*3 + 1] = luY - (i * teilLeftY);
+//        ofLog() << (i * numXPoints + 0)*3 + 0 << ": " << luX - (i * teilLeftX);
+//        ofLog() << (i * numXPoints + 0)*3 + 1 << ": " << luY - (i * teilLeftY) << " | " << llY;
+        // right side 
+        cntrlPoints[(i * numXPoints + numXPoints - 1)*3 + 0] = ruX - (i * teilRightX);
+        cntrlPoints[(i * numXPoints + numXPoints - 1)*3 + 1] = ruY - (i * teilRightY);
+    }
+=======
     // getting the projection matrix
     // calculate from: 4 corner points of original original, non-warped grid (screen)
     // and 4 corner points of the warp grid
@@ -686,6 +704,7 @@ void ofxBezierWarp::rearrangeAllPoints() {
     int y = 0;
     int w = getWidth();
     int h = getHeight();
+>>>>>>> 70cc4b8 (bugfix/feature: real perspective warping when using "rearrange all points")
     
     cv::Point2f src_points[] = {
             cv::Point2f( x, y ),
@@ -784,3 +803,4 @@ void ofxBezierWarp::moveCorner(ofOeCorner corner, ofOeDirection direction) {
     }
 
 }
+
