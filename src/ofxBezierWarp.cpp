@@ -218,12 +218,12 @@ void ofxBezierWarp::drawWarpGrid(float x, float y, float w, float h) {
     //    glEnable(GL_MAP2_VERTEX_3);
     //    glEnable(GL_AUTO_NORMAL);
     if (
-            any_of(
+            std::any_of(
                 std::begin(showHelperOnCorner),
                 std::end(showHelperOnCorner),
                 [](bool ii) { return ii; }
             ) ||
-            any_of(
+            std::any_of(
                 std::begin(showHelperOnCornerMouse),
                 std::end(showHelperOnCornerMouse),
                 [](bool iii) { return iii; }
